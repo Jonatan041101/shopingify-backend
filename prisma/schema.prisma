@@ -12,11 +12,8 @@ datasource db {
 model User{
   id String @id @default(uuid())
   user String @unique
-  email String @unique
   password String  
-  code_change String
   admin Int @default(1)
-    // history UserHistory[]
   historyProduct HistoryProduct[]
   historyProductAffected HistoryProduct[] @relation("user_affected")
 }
