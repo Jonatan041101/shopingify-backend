@@ -9,6 +9,24 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model User{
+  id String @id @default(uuid())
+  user String @unique
+  email String @unique
+  password String  
+  code_change String
+  admin Int @default(1)
+    // history UserHistory[]
+  historyProduct HistoryProduct[]
+  historyProductAffected HistoryProduct[] @relation("user_affected")
+}
+model Stock{
+  id String @id @default(uuid())
+  count Int
+  productId String @unique
+  product Product @relation(fields: [productId],references: [id])
+
+}
 model Category{
   id String @id @default(uuid())
   name String
@@ -20,8 +38,12 @@ model Product {
   note String
   image String
   categoryId String
+  stock Stock?
+  price Int
   category Category @relation(fields: [categoryId],references: [id])
   productList ProductList[]
+  historyProduct HistoryProduct[]
+ 
 }
 model ProductList{
   id String @id @default(uuid())
@@ -36,6 +58,23 @@ enum Status{
   Pendiente
   Completado
   Cancelado
+}
+// model UserHistory{
+//   id String @id @default(uuid())
+//   userId String
+//   historyId String
+//   user User @relation(fields: [userId],references: [id])
+//   historyProduct HistoryProduct @relation(fields: [historyId],references: [id]) 
+// }
+model HistoryProduct{
+  id String @id @default(uuid())
+  // history UserHistory[]
+  userId String
+  user User @relation(fields: [userId],references: [id])
+  productId String
+  product Product? @relation(fields: [productId],references: [id])
+  userAffectedId String
+  userAffected User? @relation("user_affected",fields: [userAffectedId],references: [id]) 
 }
 model History{
   id String @id @default(uuid())
