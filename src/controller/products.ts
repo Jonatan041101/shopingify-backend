@@ -8,7 +8,8 @@ const createProductModel = async (
   image: string,
   name: string,
   note: string,
-  id: string
+  id: string,
+  price: number
 ) => {
   const product = await prisma.product.create({
     data: {
@@ -16,6 +17,7 @@ const createProductModel = async (
       name,
       note,
       categoryId: id,
+      price,
     },
     include: {
       category: true,
@@ -41,7 +43,7 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 export const createProduct = async (req: Request, res: Response) => {
-  const { categoryName, image, name, note } = req.body as ProductCreate;
+  const { categoryName, image, name, note, price } = req.body as ProductCreate;
   try {
     const category = await prisma.category.findFirst({
       where: {
@@ -58,11 +60,18 @@ export const createProduct = async (req: Request, res: Response) => {
         image,
         name,
         note,
-        newCategory.id
+        newCategory.id,
+        price
       );
       return res.json({ product });
     }
-    const product = await createProductModel(image, name, note, category.id);
+    const product = await createProductModel(
+      image,
+      name,
+      note,
+      category.id,
+      price
+    );
 
     return res.json({ product });
   } catch (error) {
