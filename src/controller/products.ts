@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
 import { Product } from '../data/types';
-import { errorFunction, errorQuery } from '../util/errors';
-import { createProductQuery } from '../util/productQuery';
-import { CategoryName, CreatedProduct } from '../types/types';
+import { errorQuery } from '../util/errors';
+import { createProductQuery } from '../query/productQuery';
 import { validteProductCreated } from '../util/validates/products';
+import {
+  createdCategory,
+  searchingCategoryQuery,
+} from '../query/categoryQuery';
 export type ProductCreate = Omit<Product, 'categoryId'> & {
   categoryName: string;
 };
@@ -29,20 +32,15 @@ export const createProduct = async (req: Request, res: Response) => {
   // Validamos todos los campos
   const newProduct = validteProductCreated(req);
   try {
-    const category = await prisma.category.findFirst({
-      where: {
-        name: newProduct.categoryName,
-      },
-    });
+    const category = await searchingCategoryQuery(newProduct.categoryName);
     // Creamos el objeto con el id de la categoria si tiene si no le damos un valor por defecto
 
     if (!category) {
-      const newCategory = await prisma.category.create({
-        data: {
-          name: newProduct.categoryName,
-        },
-      });
+      const newCategory = await createdCategory(newProduct.categoryName);
       // Para no volver a crear el objeto actualizamos su valor de CategoryId y le damos el  de la nueva categoria creada si no existe la anterior
+      if (!newCategory) {
+        throw new Error(`Error en la creacion de la categoria ${newCategory}`);
+      }
       newProduct.categoryId = newCategory.id;
       const product = await createProductQuery(newProduct);
       return res.json({ product });
