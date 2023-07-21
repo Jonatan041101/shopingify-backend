@@ -76,3 +76,11 @@ export const getProductsQuery = async () => {
     errorFunction(error);
   }
 };
+export const deleteProductQuery = async (id: string) => {
+  const prod = await prisma.product.delete({
+    where: {
+      id,
+    },
+  });
+  return prod;
+};

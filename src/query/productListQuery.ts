@@ -51,7 +51,10 @@ export const updateProductListCountQuery = async (
   productId: string,
   count: number
 ) => {
+  console.log({ productId, count }, 'AQUI');
+
   try {
+    await searchProductListWithIDQuery(productId);
     const productListUpdating = await prisma.productList.update({
       where: {
         id: productId,
@@ -67,14 +70,7 @@ export const updateProductListCountQuery = async (
     errorFunction(error);
   }
 };
-// await prisma.productList.update({
-//  where: {
-//    id: searchProduct.id,
-//  },
-//  data: {
-//    count: searchProduct.count + 1,
-//  },
-// })
+
 export const searchProductListWithIDQuery = async (id: string) => {
   try {
     const productList = await prisma.productList.findUnique({
@@ -85,6 +81,10 @@ export const searchProductListWithIDQuery = async (id: string) => {
         product: true,
       },
     });
+    if (!productList)
+      throw new Error(
+        `El id ${id} no pertenece a ningun producto de la lista.`
+      );
     return productList;
   } catch (error) {
     errorFunction(error);
@@ -101,4 +101,12 @@ export const deleteProductListQuery = async (id: string) => {
   } catch (error) {
     errorFunction(error);
   }
+};
+export const deleteManyProductsListQuery = async (id: string) => {
+  const product = await prisma.productList.deleteMany({
+    where: {
+      productId: id,
+    },
+  });
+  return product;
 };

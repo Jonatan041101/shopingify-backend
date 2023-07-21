@@ -12,3 +12,6 @@ export interface ProductListCreate {
   productId: string;
   count: number;
 }
+export interface ID {
+  id: string;
+}
