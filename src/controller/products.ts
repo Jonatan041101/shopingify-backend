@@ -1,29 +1,12 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
 import { Product } from '../data/types';
+import { errorFunction, errorQuery } from '../util/errors';
+import { createProductQuery } from '../util/productQuery';
+import { CategoryName, CreatedProduct } from '../types/types';
+import { validteProductCreated } from '../util/validates/products';
 export type ProductCreate = Omit<Product, 'categoryId'> & {
   categoryName: string;
-};
-const createProductModel = async (
-  image: string,
-  name: string,
-  note: string,
-  id: string,
-  price: number
-) => {
-  const product = await prisma.product.create({
-    data: {
-      image,
-      name,
-      note,
-      categoryId: id,
-      price,
-    },
-    include: {
-      category: true,
-    },
-  });
-  return product;
 };
 export const getProducts = async (req: Request, res: Response) => {
   try {
@@ -43,39 +26,35 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 export const createProduct = async (req: Request, res: Response) => {
-  const { categoryName, image, name, note, price } = req.body as ProductCreate;
+  // Validamos todos los campos
+  const newProduct = validteProductCreated(req);
   try {
     const category = await prisma.category.findFirst({
       where: {
-        name: categoryName,
+        name: newProduct.categoryName,
       },
     });
+    // Creamos el objeto con el id de la categoria si tiene si no le damos un valor por defecto
+
     if (!category) {
       const newCategory = await prisma.category.create({
         data: {
-          name: categoryName,
+          name: newProduct.categoryName,
         },
       });
-      const product = await createProductModel(
-        image,
-        name,
-        note,
-        newCategory.id,
-        price
-      );
+      // Para no volver a crear el objeto actualizamos su valor de CategoryId y le damos el  de la nueva categoria creada si no existe la anterior
+      newProduct.categoryId = newCategory.id;
+      const product = await createProductQuery(newProduct);
       return res.json({ product });
     }
-    const product = await createProductModel(
-      image,
-      name,
-      note,
-      category.id,
-      price
-    );
+
+    const product = await createProductQuery(newProduct);
 
     return res.json({ product });
   } catch (error) {
     console.log({ error });
+    const ERROR = error as Error;
+    errorQuery(res, ERROR);
   }
 };
 interface IdProduct {
@@ -149,5 +128,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log({ error });
+    const ERROR = error as Error;
+    errorQuery(res, ERROR);
   }
 };

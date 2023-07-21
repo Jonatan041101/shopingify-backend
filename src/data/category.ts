@@ -1,7 +1,8 @@
-import { Category } from "./types";
+import { Category } from './types';
 
 export const categorys: Category[] = [
- { name: 'Frutas y vegetales' },
- { name: 'Carne y pescado' },
- {name:'Bebidas'}
-]
+  // { name: 'Frutas y vegetales' },
+  // { name: 'Carne y pescado' },
+  { name: 'Bebidas' },
+  { name: 'Juguetes' },
+];

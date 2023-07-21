@@ -16,8 +16,8 @@ async function executeServer() {
     // await prisma.history.deleteMany()
     // await prisma.product.deleteMany()
     // await prisma.category.createMany({
-    //       data:categorys
-    //      })
+    //   data: categorys,
+    // });
     //  await prisma.product.createMany({
     //   data:[...products,...productMeat,...productsDrinks]
     //  })

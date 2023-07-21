@@ -7,6 +7,7 @@ export interface Product {
   image: string;
   categoryId: string;
   price: number;
+  stock: number;
 }
 export type ProductCreate = Omit<Product, 'categoryId'> & {
   categoryName: string;

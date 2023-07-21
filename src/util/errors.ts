@@ -1,5 +1,5 @@
 import { Response } from 'express';
-export const MSG_BAD_LOGIN = 'La contraseña o usuario no existe';
+export const MSG_BAD_LOGIN = 'La contraseña o usuario es incorrecto';
 export const errorQuery = (res: Response, error: Error) => {
   res.status(500).json({ message: error.message });
 };
