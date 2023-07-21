@@ -1,17 +1,24 @@
 import { Request, Response } from 'express';
-import { prisma } from '../db/prisma';
 import { ProductList, Status } from '@prisma/client';
 import {
   createHistoryQuery,
+  getAllCompleteHistory,
   getAllHistorys,
   getProductsHistoryCreated,
   searchHistoryPending,
+  updateHistoryQuery,
 } from '../query/historyQuery';
-import { validateString } from '../util/validates/history';
+import { validateStatus, validateString } from '../util/validates/history';
 import { ProductHistory, ProductListCreate } from '../types/types';
-import { createManyProductListQuery } from '../query/productListQuery';
+import {
+  createManyProductListQuery,
+  createdProductListQuery,
+  searchProductListQuery,
+  updateProductListCountQuery,
+} from '../query/productListQuery';
 import { errorQuery } from '../util/errors';
 import { parseProductsHistory } from '../util/parse/parseProductListToHistory';
+import { errorModelsId } from '../util/validates/productList';
 interface HistoryStatsProduct {
   id: string;
   count: number;
@@ -124,6 +131,7 @@ export const createHistory = async (req: Request, res: Response) => {
     errorQuery(res, error);
   }
 };
+
 export const getHistoryPending = async (_req: Request, res: Response) => {
   try {
     const historyPending = await searchHistoryPending();
@@ -138,14 +146,9 @@ export const getHistoryPending = async (_req: Request, res: Response) => {
 export const updateHistory = async (req: Request, res: Response) => {
   const { historyId, status } = req.body as ChangeStatus;
   try {
-    const history = await prisma.history.update({
-      where: {
-        id: historyId,
-      },
-      data: {
-        status,
-      },
-    });
+    validateString(historyId);
+    validateStatus(status);
+    const history = await updateHistoryQuery(historyId, status);
     res.json({ history });
   } catch (error) {
     console.log({ error });
@@ -156,35 +159,19 @@ export const updateHistory = async (req: Request, res: Response) => {
 export const addProduct = async (req: Request, res: Response) => {
   const { historyId, productId } = req.body as HistoryAddProduct;
   try {
-    const searchProduct = await prisma.productList.findFirst({
-      where: {
-        historyId,
-        productId,
-      },
-    });
+    validateString(historyId);
+    validateString(productId);
+    const searchProduct = await searchProductListQuery(historyId, productId);
     if (!searchProduct) {
-      const productList = await prisma.productList.create({
-        data: {
-          productId,
-          count: 1,
-          historyId,
-        },
-      });
-      if (!productList)
-        throw new Error(`No existe un producto con el id ${productId} `);
+      const productList = await createdProductListQuery(historyId, productId);
+      if (!productList) throw new Error(errorModelsId(productId));
       return res.json({
         message: `Producto con id ${productId} agregado a la lista con id ${historyId}`,
         id: productList.id,
       });
     }
-    const productList = await prisma.productList.update({
-      where: {
-        id: searchProduct.id,
-      },
-      data: {
-        count: searchProduct.count + 1,
-      },
-    });
+    const productList = await updateProductListCountQuery(searchProduct.id, 1);
+    if (!productList) throw new Error(errorModelsId(productId));
     return res.json({
       message: `El producto con id ${productId} a sido actualizado en la lista.`,
       id: productList.id,
@@ -194,27 +181,14 @@ export const addProduct = async (req: Request, res: Response) => {
     errorQuery(res, error);
   }
 };
+
 export const getHistorysCategorysProduct = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const historys = await prisma.history.findMany({
-      where: {
-        status: 'Completado',
-      },
-      include: {
-        product: {
-          include: {
-            product: {
-              include: {
-                category: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const historys = await getAllCompleteHistory();
+    if (!historys) throw new Error('Error del servidor.');
     const productsStats: HistoryStatsProduct[] = [];
     const categoryStats: HistoryStatsProduct[] = [];
     historys.forEach((product) => {

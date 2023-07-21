@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { validateLogin } from '../validates/user';
 import { errorQuery } from '../util/errors';
 import { loginSesionQuery } from '../query/userQuery';
+import { validateLogin } from '../util/validates/user';
 
 export const loginSesion = async (req: Request, res: Response) => {
   const userLogin = validateLogin(req);

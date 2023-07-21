@@ -1,24 +1,8 @@
+import { Status } from '@prisma/client';
 import { prisma } from '../db/prisma';
 import { errorFunction } from '../util/errors';
-export const includeHistoryWithProductComplete = {
-  include: {
-    product: {
-      include: {
-        product: {
-          include: {
-            category: true,
-            stock: {
-              select: {
-                count: true,
-                id: true,
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-};
+import { includeHistoryWithProductComplete } from '../util/joinsQuerys/history';
+
 export const createHistoryQuery = async (name: string) => {
   try {
     const history = await prisma.history.create({
@@ -64,6 +48,34 @@ export const searchHistoryPending = async () => {
       ...includeHistoryWithProductComplete,
     });
     return historyPending;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
+export const updateHistoryQuery = async (historyId: string, status: Status) => {
+  try {
+    const history = await prisma.history.update({
+      where: {
+        id: historyId,
+      },
+      data: {
+        status,
+      },
+    });
+    return history;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
+export const getAllCompleteHistory = async () => {
+  try {
+    const history = await prisma.history.findMany({
+      where: {
+        status: 'Completado',
+      },
+      ...includeHistoryWithProductComplete,
+    });
+    return history;
   } catch (error) {
     errorFunction(error);
   }
