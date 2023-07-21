@@ -1,14 +1,20 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
 import { ProductList, Status } from '@prisma/client';
+import {
+  createHistoryQuery,
+  getAllHistorys,
+  getProductsHistoryCreated,
+} from '../query/historyQuery';
+import { validateString } from '../util/validates/history';
+import { ProductHistory, ProductListCreate } from '../types/types';
+import { createManyProductListQuery } from '../query/productListQuery';
+import { errorQuery } from '../util/errors';
+import { parseProductsHistory } from '../util/parse/parseProductListToHistory';
 interface HistoryStatsProduct {
   id: string;
   count: number;
   name: string;
-}
-interface ProductListCreate {
-  productId: string;
-  count: number;
 }
 
 interface CreateHistory {
@@ -37,6 +43,7 @@ export const includeHistory = {
         product: {
           include: {
             category: true,
+            stock: true,
           },
         },
       },
@@ -45,19 +52,8 @@ export const includeHistory = {
 };
 export const getHistorys = async (_req: Request, res: Response) => {
   try {
-    const historys = await prisma.history.findMany({
-      include: {
-        product: {
-          include: {
-            product: {
-              include: {
-                category: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const historys = await getAllHistorys();
+    if (!historys) throw new Error('Error en el servidor');
     interface Order {
       [key: string]: History[];
     }
@@ -118,32 +114,26 @@ export const getHistorys = async (_req: Request, res: Response) => {
 export const createHistory = async (req: Request, res: Response) => {
   const { nameList, productsList, status } = req.body as CreateHistory;
   try {
-    const history = await prisma.history.create({
-      data: {
-        name: nameList,
-        status,
-      },
-    });
-    type ProductHistory = Omit<ProductList, 'id'>;
-    const products: ProductHistory[] = productsList.map(
-      ({ count, productId }) => ({
-        count,
-        productId,
-        historyId: history.id,
-      })
+    validateString(nameList);
+    console.log({ nameList, productsList, status });
+    const history = await createHistoryQuery(nameList);
+    if (!history) throw new Error('Error en la creacion de la lista.');
+    const products: ProductHistory[] = parseProductsHistory(
+      productsList,
+      history.id
     );
-    const productsListCreated = await prisma.productList.createMany({
-      data: products,
-    });
-    const historyAltered = await prisma.history.findFirst({
-      where: {
-        id: history.id,
-      },
-      ...includeHistory,
-    });
-    return res.json({ history: historyAltered });
+    console.log({ products });
+    const createdExit = await createManyProductListQuery(products);
+    if (!createdExit) {
+      throw new Error(
+        `Error en la creacion de los productos de la lista ${nameList}`
+      );
+    }
+    const getHistoryCreated = await getProductsHistoryCreated(history.id);
+    return res.json({ history: getHistoryCreated });
   } catch (error) {
     console.log({ error });
+    errorQuery(res, error);
   }
 };
 export const getHistoryPending = async (_req: Request, res: Response) => {
