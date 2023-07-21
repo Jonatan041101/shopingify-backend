@@ -29,10 +29,49 @@ export const createProductQuery = async ({
       },
       include: {
         category: true,
-        stock: true,
+        stock: {
+          select: {
+            count: true,
+            id: true,
+          },
+        },
       },
     });
     return product;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
+export const searchProductQuery = async (id: string) => {
+  try {
+    const productoName = await prisma.product.findFirst({
+      where: {
+        id,
+      },
+    });
+    return productoName;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
+export const getProductsQuery = async () => {
+  try {
+    const products = await prisma.category.findMany({
+      include: {
+        product: {
+          include: {
+            category: true,
+            stock: {
+              select: {
+                count: true,
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return products;
   } catch (error) {
     errorFunction(error);
   }

@@ -5,5 +5,5 @@ export interface CreatedProduct extends Omit<Product, 'id'> {
   stock: Pick<Stock, 'count'>;
 }
 export interface CategoryName {
-  categoryName: string;
+  category: string;
 }

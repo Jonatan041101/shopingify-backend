@@ -8,6 +8,8 @@ interface ProductListSearch {
 
 export const updateProductList = async (req: Request, res: Response) => {
   const { count, id } = req.body as ProductListSearch;
+  console.log({ count, id });
+
   try {
     const productList = await prisma.productList.update({
       where: {
@@ -22,6 +24,8 @@ export const updateProductList = async (req: Request, res: Response) => {
         product: true,
       },
     });
+    console.log({ productList });
+
     if (!productList) throw new Error(`El producto con ${id} no exite`);
     return res.json({ product: productList });
   } catch (error) {
