@@ -5,6 +5,7 @@ import {
   createHistoryQuery,
   getAllHistorys,
   getProductsHistoryCreated,
+  searchHistoryPending,
 } from '../query/historyQuery';
 import { validateString } from '../util/validates/history';
 import { ProductHistory, ProductListCreate } from '../types/types';
@@ -36,20 +37,6 @@ interface HistoryAddProduct {
   historyId: string;
   productId: string;
 }
-export const includeHistory = {
-  include: {
-    product: {
-      include: {
-        product: {
-          include: {
-            category: true,
-            stock: true,
-          },
-        },
-      },
-    },
-  },
-};
 export const getHistorys = async (_req: Request, res: Response) => {
   try {
     const historys = await getAllHistorys();
@@ -108,6 +95,7 @@ export const getHistorys = async (_req: Request, res: Response) => {
     return res.json({ history: sortedProductsByMonth });
   } catch (error) {
     console.log({ error });
+    errorQuery(res, error);
   }
 };
 
@@ -138,17 +126,12 @@ export const createHistory = async (req: Request, res: Response) => {
 };
 export const getHistoryPending = async (_req: Request, res: Response) => {
   try {
-    const historyPending = await prisma.history.findFirst({
-      where: {
-        status: 'Pendiente',
-      },
-      ...includeHistory,
-    });
+    const historyPending = await searchHistoryPending();
     if (!historyPending) throw new Error('No hay una lista pendiente');
     res.json({ history: historyPending });
   } catch (error) {
-    const ERROR = error as Error;
-    res.json({ message: ERROR.message });
+    console.log({ error });
+    errorQuery(res, error);
   }
 };
 
@@ -166,6 +149,7 @@ export const updateHistory = async (req: Request, res: Response) => {
     res.json({ history });
   } catch (error) {
     console.log({ error });
+    errorQuery(res, error);
   }
 };
 
@@ -207,6 +191,7 @@ export const addProduct = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log({ error });
+    errorQuery(res, error);
   }
 };
 export const getHistorysCategorysProduct = async (
@@ -277,5 +262,6 @@ export const getHistorysCategorysProduct = async (
     });
   } catch (error) {
     console.log({ error });
+    errorQuery(res, error);
   }
 };

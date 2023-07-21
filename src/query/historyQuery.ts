@@ -55,3 +55,16 @@ export const getAllHistorys = async () => {
     errorFunction(error);
   }
 };
+export const searchHistoryPending = async () => {
+  try {
+    const historyPending = await prisma.history.findFirst({
+      where: {
+        status: 'Pendiente',
+      },
+      ...includeHistoryWithProductComplete,
+    });
+    return historyPending;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
