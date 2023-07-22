@@ -29,7 +29,6 @@ const createProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     var _a;
     // Validamos todos los campos
     req.body;
-    console.log({ body: req.body });
     try {
         const newProduct = (0, products_1.validteProductCreated)(req.body);
         const category = yield (0, categoryQuery_1.searchingCategoryQuery)(newProduct.category);
