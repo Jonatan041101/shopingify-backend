@@ -8,6 +8,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(router);
+app.get('/', (req, res) => res.send('HOLA MUNDO'));
 async function executeServer() {
   try {
     // await prisma.productList.deleteMany()
