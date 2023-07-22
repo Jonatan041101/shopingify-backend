@@ -56,7 +56,6 @@ const createdProductListQuery = (historyId, productId) => __awaiter(void 0, void
 });
 exports.createdProductListQuery = createdProductListQuery;
 const updateProductListCountQuery = (productId, count) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log({ productId, count }, 'AQUI');
     try {
         yield (0, exports.searchProductListWithIDQuery)(productId);
         const productListUpdating = yield prisma_1.prisma.productList.update({
