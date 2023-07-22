@@ -24,6 +24,8 @@ export const passwordConfirm = (password: string, receivedPassword: string) => {
 export const loginSesionQuery = async (userLogin: Login) => {
   try {
     const user = await searchUser(userLogin.user);
+    console.log({ user }, 'USER');
+
     passwordConfirm(user?.password ?? '', userLogin.password);
     return user;
   } catch (error) {

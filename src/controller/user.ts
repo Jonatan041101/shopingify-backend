@@ -6,7 +6,11 @@ import { validateLogin } from '../util/validates/user';
 export const loginSesion = async (req: Request, res: Response) => {
   const userLogin = validateLogin(req);
   try {
+    console.log({ userLogin });
+
     const user = await loginSesionQuery(userLogin);
+    console.log({ user });
+
     res.json({ user });
   } catch (error) {
     const ERROR = error as Error;
