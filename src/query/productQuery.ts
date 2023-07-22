@@ -1,7 +1,7 @@
 import { prisma } from '../db/prisma';
 import { CreatedProduct } from '../types/types';
 import { errorFunction } from '../util/errors';
-
+import { Prisma } from '@prisma/client';
 export const createProductQuery = async ({
   categoryId,
   image,

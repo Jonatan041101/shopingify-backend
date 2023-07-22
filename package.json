@@ -9,7 +9,7 @@
     "dev": "tsnd --respawn index.ts",
     "build": "tsc",
     "postinstall": "prisma generate && prisma migrate deploy",
-    "vercel-build": "prisma migrate deploy"
+    "vercel-build": "prisma generate && prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
