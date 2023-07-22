@@ -8,7 +8,7 @@
     "start": "tsnd --respawn index.ts",
     "dev": "tsnd --respawn index.ts",
     "build": "tsc",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "vercel-build": "prisma generate && prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
