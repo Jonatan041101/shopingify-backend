@@ -36,7 +36,7 @@ model Product {
   image String
   categoryId String
   stock Stock?
-  price Int
+  price Decimal
   category Category @relation(fields: [categoryId],references: [id])
   productList ProductList[]
   historyProduct HistoryProduct[]
@@ -79,4 +79,8 @@ model History{
   name String
   date DateTime @default(now())
   status Status
+}
+model Dolar{
+  id String @id @default(uuid())
+  value Int
 }

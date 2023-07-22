@@ -1,6 +1,4 @@
-import { Request } from 'express';
 import { CategoryName, CreatedProduct } from '../../types/types';
-import { errorFunction } from '../errors';
 export const validteProductCreated = ({
   image,
   category,
@@ -36,4 +34,10 @@ export const validteProductCreated = ({
     stock,
     note,
   } as CreatedProduct & CategoryName;
+};
+export const validateNumber = (count: unknown) => {
+  if (isNaN(Number(count)))
+    throw new Error(`El count ${count} no es un numero.`);
+  if (typeof count !== 'number')
+    throw new Error(`El count ${count} no es un numero.`);
 };

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { Login } from '../types/types';
+import { Login } from '../../types/types';
 
 export const validateLogin = (req: Request): Login => {
   const { user, password } = req.body;

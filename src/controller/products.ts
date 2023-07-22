@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { prisma } from '../db/prisma';
-import { Product } from '../data/types';
 import { errorQuery } from '../util/errors';
 import {
   createProductQuery,
+  deleteProductQuery,
   getProductsQuery,
   searchProductQuery,
 } from '../query/productQuery';
@@ -12,10 +11,12 @@ import {
   createdCategory,
   searchingCategoryQuery,
 } from '../query/categoryQuery';
-import { CategoryName, CreatedProduct } from '../types/types';
-export type ProductCreate = Omit<Product, 'categoryId'> & {
-  categoryName: string;
-};
+import { CategoryName, CreatedProduct, ID } from '../types/types';
+import {
+  deleteManyProductsListQuery,
+  searchProductListWithIDQuery,
+} from '../query/productListQuery';
+
 export const getProducts = async (_req: Request, res: Response) => {
   try {
     const products = await getProductsQuery();
@@ -52,58 +53,31 @@ export const createProduct = async (req: Request, res: Response) => {
     return res.json({ product });
   } catch (error) {
     console.log({ error });
-    // errorQuery(res, error);
-    res.status(500).json({ message: '' });
+    errorQuery(res, error);
   }
 };
-interface IdProduct {
-  id: string;
-}
 
-const deleteProductExist = async (id: string) => {
-  const prod = await prisma.product.delete({
-    where: {
-      id,
-    },
-  });
-  return prod;
-};
-const deleteManyProductsList = async (id: string) => {
-  const product = await prisma.productList.deleteMany({
-    where: {
-      productId: id,
-    },
-  });
-  return product;
-};
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body as IdProduct;
+    const { id } = req.body as ID;
 
-    const productList = await deleteManyProductsList(id);
+    const productList = await deleteManyProductsListQuery(id);
     const product = await searchProductQuery(id);
 
     if (productList.count === 0 && product) {
-      const PRODUCT = await prisma.productList.findFirst({
-        where: {
-          id,
-        },
-        include: {
-          product: true,
-        },
-      });
+      const PRODUCT = await searchProductListWithIDQuery(id);
 
       if (!PRODUCT) {
-        const deleteProduct = await deleteProductExist(id);
+        const deleteProduct = await deleteProductQuery(id);
         if (!deleteProduct)
           throw new Error(`No se encontro el producto con id ${id}`);
         return res.json({
           message: `Producto ${product.name} sin historial eliminado`,
         });
       }
-      await deleteManyProductsList(PRODUCT.product.id);
+      await deleteManyProductsListQuery(PRODUCT.product.id);
       const productName = await searchProductQuery(PRODUCT.product.id);
-      const prod = await deleteProductExist(PRODUCT.product.id);
+      const prod = await deleteProductQuery(PRODUCT.product.id);
       if (!prod || !productName)
         throw new Error(`El producto con id ${id} no existe.`);
       return res.json({
@@ -111,7 +85,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
       });
     }
     const productName = await searchProductQuery(id);
-    const prod = await deleteProductExist(id);
+    const prod = await deleteProductQuery(id);
     if (!prod || !productName)
       throw new Error(`El producto con id ${id} no existe.`);
     res.json({
@@ -119,7 +93,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log({ error });
-    const ERROR = error as Error;
-    errorQuery(res, ERROR);
+    errorQuery(res, error);
   }
 };

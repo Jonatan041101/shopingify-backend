@@ -1,4 +1,4 @@
-import { Product, Stock, User } from '@prisma/client';
+import { Product, ProductList, Stock, User } from '@prisma/client';
 
 export interface Login extends Pick<User, 'user' | 'password'> {}
 export interface CreatedProduct extends Omit<Product, 'id'> {
@@ -6,4 +6,12 @@ export interface CreatedProduct extends Omit<Product, 'id'> {
 }
 export interface CategoryName {
   category: string;
+}
+export interface ProductHistory extends Omit<ProductList, 'id'> {}
+export interface ProductListCreate {
+  productId: string;
+  count: number;
+}
+export interface ID {
+  id: string;
 }

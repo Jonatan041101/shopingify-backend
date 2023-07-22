@@ -2,8 +2,6 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import { prisma } from './db/prisma';
-import { categorys } from './data/category';
-import { productMeat, products, productsDrinks } from './data/product';
 import { router } from './routes';
 const app = express();
 app.use(cors());
