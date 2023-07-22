@@ -51,8 +51,6 @@ export const updateProductListCountQuery = async (
   productId: string,
   count: number
 ) => {
-  console.log({ productId, count }, 'AQUI');
-
   try {
     await searchProductListWithIDQuery(productId);
     const productListUpdating = await prisma.productList.update({

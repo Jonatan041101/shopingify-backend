@@ -110,14 +110,12 @@ export const createHistory = async (req: Request, res: Response) => {
   const { nameList, productsList, status } = req.body as CreateHistory;
   try {
     validateString(nameList);
-    console.log({ nameList, productsList, status });
     const history = await createHistoryQuery(nameList);
     if (!history) throw new Error('Error en la creacion de la lista.');
     const products: ProductHistory[] = parseProductsHistory(
       productsList,
       history.id
     );
-    console.log({ products });
     const createdExit = await createManyProductListQuery(products);
     if (!createdExit) {
       throw new Error(

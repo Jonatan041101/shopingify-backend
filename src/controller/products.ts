@@ -28,7 +28,6 @@ export const getProducts = async (_req: Request, res: Response) => {
 export const createProduct = async (req: Request, res: Response) => {
   // Validamos todos los campos
   req.body as CreatedProduct & CategoryName;
-  console.log({ body: req.body });
 
   try {
     const newProduct = validteProductCreated(req.body);
