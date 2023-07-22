@@ -16,9 +16,12 @@ async function executeServer() {
     // await prisma.category.createMany({
     //   data: categorys,
     // });
-    //  await prisma.product.createMany({
-    //   data:[...products,...productMeat,...productsDrinks]
-    //  })
+    // const category = await prisma.category.create({
+    //   data: {
+    //     name: 'Juguetes',
+    //   },
+    // });
+    // console.log({ category });
   } catch (error) {
     console.log({ error });
   }

@@ -20,6 +20,8 @@ import {
 export const getProducts = async (_req: Request, res: Response) => {
   try {
     const products = await getProductsQuery();
+    console.log({ products });
+
     return res.json({ products });
   } catch (error) {
     errorQuery(res, error);
