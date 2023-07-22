@@ -15,12 +15,10 @@ interface ProductListSearch {
 
 export const updateProductList = async (req: Request, res: Response) => {
   const { count, id } = req.body as ProductListSearch;
-  console.log({ count, id });
   try {
     validateNumber(count);
     validateString(id);
     const productList = await updateProductListCountQuery(id, count);
-    console.log({ productList });
     if (!productList) throw new Error(`El producto con ${id} no exite`);
     return res.json({ product: productList });
   } catch (error) {
