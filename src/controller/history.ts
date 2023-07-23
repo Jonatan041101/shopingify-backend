@@ -6,6 +6,7 @@ import {
   getAllHistorys,
   getProductsHistoryCreated,
   searchHistoryPending,
+  searchHistoryWithID,
   updateHistoryQuery,
 } from '../query/historyQuery';
 import { validateStatus, validateString } from '../util/validates/history';
@@ -19,6 +20,7 @@ import {
 import { errorQuery } from '../util/errors';
 import { parseProductsHistory } from '../util/parse/parseProductListToHistory';
 import { errorModelsId } from '../util/validates/productList';
+import { updateProductCountQuery } from '../query/productQuery';
 interface HistoryStatsProduct {
   id: string;
   count: number;
@@ -147,6 +149,15 @@ export const updateHistory = async (req: Request, res: Response) => {
     validateString(historyId);
     validateStatus(status);
     const history = await updateHistoryQuery(historyId, status);
+    if (!history) throw new Error('Error en el servidor');
+    if (history.status === 'Cancelado') {
+      return res.status(204).json({ history });
+    }
+    const products = await searchHistoryWithID(history.id);
+    if (!products) throw new Error('Error en el servidor');
+    for (const product of products.product) {
+      await updateProductCountQuery(product.productId, product.count);
+    }
     res.json({ history });
   } catch (error) {
     console.log({ error });

@@ -5,8 +5,12 @@ import {
   deleteProductQuery,
   getProductsQuery,
   searchProductQuery,
+  updateProductCountQuery,
 } from '../query/productQuery';
-import { validteProductCreated } from '../util/validates/products';
+import {
+  validateNumber,
+  validteProductCreated,
+} from '../util/validates/products';
 import {
   createdCategory,
   searchingCategoryQuery,
@@ -16,6 +20,7 @@ import {
   deleteManyProductsListQuery,
   searchProductListWithIDQuery,
 } from '../query/productListQuery';
+import { validateString } from '../util/validates/history';
 
 export const getProducts = async (_req: Request, res: Response) => {
   try {

@@ -38,4 +38,5 @@ export const validateNumber = (count: unknown) => {
     throw new Error(`El count ${count} no es un numero.`);
   if (typeof count !== 'number')
     throw new Error(`El count ${count} no es un numero.`);
+  return count;
 };

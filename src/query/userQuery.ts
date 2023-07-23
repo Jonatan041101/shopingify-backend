@@ -6,7 +6,7 @@ export const searchUser = async (userName: string) => {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        user: userName,
+        user: userName.trim(),
       },
     });
     if (!user) throw new Error(MSG_BAD_LOGIN);
@@ -26,7 +26,7 @@ export const loginSesionQuery = async (userLogin: Login) => {
     const user = await searchUser(userLogin.user);
     console.log({ user }, 'USER');
 
-    passwordConfirm(user?.password ?? '', userLogin.password);
+    passwordConfirm(user?.password?.trim() ?? '', userLogin.password.trim());
     return user;
   } catch (error) {
     errorFunction(error);

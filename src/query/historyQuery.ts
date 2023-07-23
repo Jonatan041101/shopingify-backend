@@ -52,6 +52,26 @@ export const searchHistoryPending = async () => {
     errorFunction(error);
   }
 };
+export const searchHistoryWithID = async (id: string) => {
+  try {
+    const historyProducts = await prisma.history.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        product: {
+          select: {
+            productId: true,
+            count: true,
+          },
+        },
+      },
+    });
+    return historyProducts;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
 export const updateHistoryQuery = async (historyId: string, status: Status) => {
   try {
     const history = await prisma.history.update({
@@ -62,6 +82,7 @@ export const updateHistoryQuery = async (historyId: string, status: Status) => {
         status,
       },
     });
+
     return history;
   } catch (error) {
     errorFunction(error);

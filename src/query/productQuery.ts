@@ -1,7 +1,6 @@
 import { prisma } from '../db/prisma';
 import { CreatedProduct } from '../types/types';
 import { errorFunction } from '../util/errors';
-import { Prisma } from '@prisma/client';
 export const createProductQuery = async ({
   categoryId,
   image,
@@ -83,4 +82,21 @@ export const deleteProductQuery = async (id: string) => {
     },
   });
   return prod;
+};
+export const updateProductCountQuery = async (id: string, count: number) => {
+  try {
+    const stock = await prisma.stock.update({
+      where: {
+        productId: id,
+      },
+      data: {
+        count: {
+          decrement: count,
+        },
+      },
+    });
+    return stock;
+  } catch (error) {
+    errorFunction(error);
+  }
 };
