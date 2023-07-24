@@ -130,6 +130,10 @@ export const utilUpdateProduct = async (
           },
         },
       },
+      include: {
+        stock: true,
+        category: true,
+      },
     });
     return productUpdate;
   } catch (error) {

@@ -5,13 +5,9 @@ import {
   deleteProductQuery,
   getProductsQuery,
   searchProductQuery,
-  updateProductCountQuery,
   updateProductQuery,
 } from '../query/productQuery';
-import {
-  validateNumber,
-  validteProductCreated,
-} from '../util/validates/products';
+import { validteProductCreated } from '../util/validates/products';
 import {
   createdCategory,
   searchingCategoryQuery,
