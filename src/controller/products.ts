@@ -6,6 +6,7 @@ import {
   getProductsQuery,
   searchProductQuery,
   updateProductCountQuery,
+  updateProductQuery,
 } from '../query/productQuery';
 import {
   validateNumber,
@@ -15,7 +16,12 @@ import {
   createdCategory,
   searchingCategoryQuery,
 } from '../query/categoryQuery';
-import { CategoryName, CreatedProduct, ID } from '../types/types';
+import {
+  CategoryName,
+  CreatedProduct,
+  ID,
+  UpdateProduct,
+} from '../types/types';
 import {
   deleteManyProductsListQuery,
   searchProductListWithIDQuery,
@@ -97,6 +103,24 @@ export const deleteProduct = async (req: Request, res: Response) => {
     res.json({
       message: `Producto ${productName?.name} eliminado de la lista y de la lista de productos`,
     });
+  } catch (error) {
+    console.log({ error });
+    errorQuery(res, error);
+  }
+};
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const { id, category, image, name, note, price, stock } =
+      req.body as UpdateProduct;
+    validateString(id);
+    validateString(image);
+    validateString(name);
+    validateString(category);
+    if (!stock) throw new Error('No has agregado un stock');
+    if (!('count' in stock))
+      throw new Error(`El stock del producto no tiene un contador`);
+    const updateProduct = await updateProductQuery(req.body);
+    return res.json({ product: updateProduct });
   } catch (error) {
     console.log({ error });
     errorQuery(res, error);

@@ -15,3 +15,23 @@ export interface ProductListCreate {
 export interface ID {
   id: string;
 }
+export interface ResponseStock {
+  productId: string;
+  count: number;
+}
+
+export interface StockUpdate {
+  id: string;
+  count: number;
+}
+
+export interface UpdateProduct {
+  id: string;
+  category: string;
+  price: number;
+  stock: StockModelCountStringOrNumber;
+  name: string;
+  note: string;
+  image: string;
+  stock: StockUpdate;
+}

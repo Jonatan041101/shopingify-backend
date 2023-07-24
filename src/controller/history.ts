@@ -10,7 +10,11 @@ import {
   updateHistoryQuery,
 } from '../query/historyQuery';
 import { validateStatus, validateString } from '../util/validates/history';
-import { ProductHistory, ProductListCreate } from '../types/types';
+import {
+  ProductHistory,
+  ProductListCreate,
+  ResponseStock,
+} from '../types/types';
 import {
   createManyProductListQuery,
   createdProductListQuery,
@@ -155,10 +159,17 @@ export const updateHistory = async (req: Request, res: Response) => {
     }
     const products = await searchHistoryWithID(history.id);
     if (!products) throw new Error('Error en el servidor');
+    const productsHistory: ResponseStock[] = [];
     for (const product of products.product) {
-      await updateProductCountQuery(product.productId, product.count);
+      const stock = await updateProductCountQuery(
+        product.productId,
+        product.count
+      );
+      if (stock) {
+        productsHistory.push(stock);
+      }
     }
-    res.json({ history });
+    res.json({ history, products: productsHistory });
   } catch (error) {
     console.log({ error });
     errorQuery(res, error);
