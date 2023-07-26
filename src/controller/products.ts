@@ -5,9 +5,13 @@ import {
   deleteProductQuery,
   getProductsQuery,
   searchProductQuery,
+  suspeseProductQuery,
   updateProductQuery,
 } from '../query/productQuery';
-import { validteProductCreated } from '../util/validates/products';
+import {
+  validateNumber,
+  validteProductCreated,
+} from '../util/validates/products';
 import {
   createdCategory,
   searchingCategoryQuery,
@@ -18,17 +22,12 @@ import {
   ID,
   UpdateProduct,
 } from '../types/types';
-import {
-  deleteManyProductsListQuery,
-  searchProductListWithIDQuery,
-} from '../query/productListQuery';
+import { searchProductWithProductId } from '../query/productListQuery';
 import { validateString } from '../util/validates/history';
 
 export const getProducts = async (_req: Request, res: Response) => {
   try {
     const products = await getProductsQuery();
-    console.log({ products });
-
     return res.json({ products });
   } catch (error) {
     errorQuery(res, error);
@@ -69,35 +68,19 @@ export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.body as ID;
 
-    const productList = await deleteManyProductsListQuery(id);
+    const productList = await searchProductWithProductId(id);
     const product = await searchProductQuery(id);
-
-    if (productList.count === 0 && product) {
-      const PRODUCT = await searchProductListWithIDQuery(id);
-
-      if (!PRODUCT) {
-        const deleteProduct = await deleteProductQuery(id);
-        if (!deleteProduct)
-          throw new Error(`No se encontro el producto con id ${id}`);
-        return res.json({
-          message: `Producto ${product.name} sin historial eliminado`,
-        });
-      }
-      await deleteManyProductsListQuery(PRODUCT.product.id);
-      const productName = await searchProductQuery(PRODUCT.product.id);
-      const prod = await deleteProductQuery(PRODUCT.product.id);
-      if (!prod || !productName)
-        throw new Error(`El producto con id ${id} no existe.`);
+    console.log({ productList, product });
+    if (productList && product && productList > 0) {
+      const productUpdate = await suspeseProductQuery(id);
       return res.json({
-        message: `Producto ${productName?.name} eliminado de la lista y de la lista de productos`,
+        message: `El producto ${productUpdate?.name} fue suspendido debido a que tiene historial`,
       });
     }
-    const productName = await searchProductQuery(id);
     const prod = await deleteProductQuery(id);
-    if (!prod || !productName)
-      throw new Error(`El producto con id ${id} no existe.`);
+    if (!prod) throw new Error(`El producto con id ${id} no existe.`);
     res.json({
-      message: `Producto ${productName?.name} eliminado de la lista y de la lista de productos`,
+      message: `Producto ${prod?.name} eliminado de la lista y de la lista de productos`,
     });
   } catch (error) {
     console.log({ error });
@@ -112,6 +95,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     validateString(image);
     validateString(name);
     validateString(category);
+    validateNumber(price);
     if (!stock) throw new Error('No has agregado un stock');
     if (!('count' in stock))
       throw new Error(`El stock del producto no tiene un contador`);

@@ -150,12 +150,16 @@ export const getHistoryPending = async (_req: Request, res: Response) => {
 export const updateHistory = async (req: Request, res: Response) => {
   const { historyId, status } = req.body as ChangeStatus;
   try {
+    console.log({ historyId, status });
+
     validateString(historyId);
     validateStatus(status);
     const history = await updateHistoryQuery(historyId, status);
     if (!history) throw new Error('Error en el servidor');
     if (history.status === 'Cancelado') {
-      return res.status(204).json({ history });
+      console.log({ history });
+
+      return res.json({ history });
     }
     const products = await searchHistoryWithID(history.id);
     if (!products) throw new Error('Error en el servidor');

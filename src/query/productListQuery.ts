@@ -14,6 +14,20 @@ export const createManyProductListQuery = async (
     errorFunction(error);
   }
 };
+export const searchProductWithProductId = async (productId: string) => {
+  try {
+    const products = await prisma.productList.findMany({
+      where: {
+        productId,
+      },
+    });
+    console.log({ products });
+
+    return products.length;
+  } catch (error) {
+    errorFunction(error);
+  }
+};
 export const searchProductListQuery = async (
   historyId: string,
   productId: string
@@ -79,10 +93,12 @@ export const searchProductListWithIDQuery = async (id: string) => {
         product: true,
       },
     });
-    if (!productList)
-      throw new Error(
-        `El id ${id} no pertenece a ningun producto de la lista.`
-      );
+    // console.log({ productList });
+
+    // if (!productList)
+    //   throw new Error(
+    //     `El id ${id} no pertenece a ningun producto de la lista.`
+    //   );
     return productList;
   } catch (error) {
     errorFunction(error);

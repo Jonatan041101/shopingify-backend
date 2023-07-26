@@ -37,6 +37,7 @@ model Product {
   categoryId String
   stock Stock?
   price Decimal
+  suspense Boolean @default(false)
   category Category @relation(fields: [categoryId],references: [id])
   productList ProductList[]
   historyProduct HistoryProduct[]

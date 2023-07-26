@@ -23,6 +23,23 @@ async function executeServer() {
     //   },
     // });
     // console.log({ category });
+    // const deleteProductQuery = async (id: string) => {
+    //   console.log({ id });
+    //   let x = await prisma.product.findFirst({
+    //     where: {
+    //       id,
+    //     },
+    //   });
+    //   console.log(x);
+    //   const prod = await prisma.product.delete({
+    //     where: {
+    //       id: 'ac68bac5-3e89-4b46-8c30-65abee39eedc',
+    //     },
+    //   });
+    //   console.log({ prod });
+    //   return prod;
+    // };
+    // await deleteProductQuery('ac68bac5-3e89-4b46-8c30-65abee39eedc');
   } catch (error) {
     console.log({ error });
   }
