@@ -29,10 +29,18 @@ export const getProductsHistoryCreated = async (historyId: string) => {
     errorFunction(error);
   }
 };
-export const getAllHistorys = async () => {
+export const getAllHistorys = async (complete?: boolean) => {
+  const onlyHistoryComplete = complete
+    ? {
+        status: Status.Completado,
+      }
+    : {};
   try {
     const historysWithProducts = await prisma.history.findMany({
       ...includeHistoryWithProductComplete,
+      where: {
+        ...onlyHistoryComplete,
+      },
     });
     return historysWithProducts;
   } catch (error) {

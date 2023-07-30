@@ -111,7 +111,67 @@ export const getHistorys = async (_req: Request, res: Response) => {
     errorQuery(res, error);
   }
 };
+export const getHistorysCompletes = async (req: Request, res: Response) => {
+  try {
+    const historys = await getAllHistorys(true);
+    if (!historys) throw new Error('Error en el servidor');
+    interface Order {
+      [key: string]: History[];
+    }
 
+    const productsByMonth: Order = historys.reduce((result: Order, history) => {
+      const dateCreate = new Date(history.date);
+      const month = dateCreate.toLocaleString('es-AR', { month: 'long' });
+      const year = dateCreate.getFullYear();
+      const key = `${month} ${year}`;
+
+      if (!result[key]) {
+        result[key] = [];
+      }
+
+      result[key].push(history);
+
+      return result;
+    }, {});
+
+    const sortedProductsByMonth: Order = Object.entries(productsByMonth)
+      .sort(([keyA], [keyB]) => {
+        const [monthA, yearA] = keyA.split(' ');
+        const [monthB, yearB] = keyB.split(' ');
+
+        if (yearA !== yearB) {
+          return Number(yearA) - Number(yearB);
+        }
+
+        const months: string[] = [
+          'febrero',
+          'marzo',
+          'abril',
+          'mayo',
+          'junio',
+          'julio',
+          'agosto',
+          'septiembre',
+          'octubre',
+          'noviembre',
+          'diciembre',
+        ];
+        const indexMonthA = months.indexOf(monthA);
+        const indexMonthB = months.indexOf(monthB);
+
+        return indexMonthA - indexMonthB;
+      })
+      .reduce((result: Order, [key, products]) => {
+        result[key] = products;
+        return result;
+      }, {});
+
+    return res.json({ history: sortedProductsByMonth });
+  } catch (error) {
+    console.log({ error });
+    errorQuery(res, error);
+  }
+};
 export const createHistory = async (req: Request, res: Response) => {
   const { nameList, productsList, status } = req.body as CreateHistory;
   try {
